@@ -1,0 +1,59 @@
+my_wishlist = {
+    "Naomi": {"Apple Watch", "Running Shoes Credit", "Murder Mystery Book"},
+    "Yasi": {"Coach Bag", "Earrings", "Bracelet"},
+    "Tanya": {"TV", "Apple Watch?", "Hair Products"},
+    "Matthew": {"Steam Card", "Football Helmet", "New Cleats"},
+    "Vanessa": {"Necklace", "Bracelet?", "Ticket to NY"},
+    "Mother": {"Gold Necklace", "Spa Gift Card"},
+    "Father": {"Tool set", "Apple Headphones"},
+
+} # the dictionary, a very mutable and cool/better? list
+
+print("Kevin's Family Christmas Gift List App\u2122") # Title
+print("----" * 10) # Creates barrier for reading
+
+ask_for_input = True # ask_for_input loop to help while loop and avoid breaks
+while ask_for_input: # while loop
+    print("\nWhat would you like to do?")
+    print("1. View someone's wish list")
+    print("2. Add an item to someone's wish list")
+    print("3. Show all family members")
+    print("4. Exit")
+    # options
+    
+    choice = input("\nEnter your choice (1-4): ") # choice 1 to 4
+    
+    if choice == "1": # choice if option 1 is chosen
+        name = input("Whose wish list do you want to see? ").title() # input of user to ask whose name they want to see
+        if name in my_wishlist: # if oeprator to check name and wishlist
+            print(f"\n{name}'s Wish List:")
+            for item in my_wishlist[name]: # for loop if item is in wishlist and with the name associated in the dictionary
+                print(f"  • {item}") # print list in a bulletin format. alt + 0149 to create a little bulletin
+        else:
+            print(f"Sorry, {name} is not in the family list yet.") # error if name is not found
+    
+    elif choice == "2": # choice 2 is chosen
+        name = input("Who are you adding a gift for? ").title() 
+        if name not in my_wishlist:
+            print(f"{name} is not in the list yet. Adding them now!") # option to add someone into the dictionary. ITS MUTABLE
+            my_wishlist[name] = set()  # Create new empty wset for wishlist
+        
+        new_item = input(f"What should we add to {name}'s wish list? ").strip()
+        my_wishlist[name].add(new_item)  # adds item in list once user input is inputted
+        
+        print(f"Added '{new_item}' to {name}'s wish list!")
+        print(f"{name}'s updated list: {my_wishlist[name]}")
+    
+    elif choice == "3": # choice 3 for show all family members
+        print("\nFamily Members in the Wish List:")
+        for name in my_wishlist:
+            count = len(my_wishlist[name]) # count and len helps to count the dictionary
+            print(f"  • {name} ({count} item{'s' if count != 1 else ''})") # bullet points for each name and item. alt + 0149 to create a little bulletin
+    
+    elif choice == "4": # option 4 
+        print("\nThanks for using Kevin's Family Christmas Gift List App\u2122!") # loop exit message
+        ask_for_input = False # exit loop
+    
+    else:
+        print("Invalid choice. Please enter 1, 2, 3, or 4.")  # must choose 1 - 4
+    

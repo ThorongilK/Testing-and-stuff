@@ -1,0 +1,21 @@
+import matplotlib.pyplot as plt # import matplotlib
+import numpy as np #imports numpy
+
+def my_function(x, a): # the function has two variables x and a
+    return a ** x # return for the function layout to be plotted
+
+a = 2 # defines a = 2
+
+
+x_values = np.linspace(-10, 10, 20)
+# designates the graph to be between -10 and 10 on the x axis
+# the 20 points evenly spaced values from -10 to 10
+y_values = my_function(x_values, a)
+# calculates the y values using the function
+plt.plot(x_values, y_values, label = f'y = {a}**x') #label
+plt.title('f(x) = 2**x') #title
+plt.xlabel('x') #label the x-axis
+plt.ylabel('y') #labels the y axis
+plt.legend() # display the labels
+plt.grid(True) # add the grid lines to the plot
+plt.show() #display

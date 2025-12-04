@@ -1,0 +1,268 @@
+import random # random module for password generation
+import pandas as pd # pandas for dataframe use
+import string # string access to lists of letters and numbers from Chapter 13 of the ThinkPython book
+from IPython.display import display # after conducting some research this helps with the output, after trial and error this kinda fixed the output problems
+
+class KI_Employee_Portal: # Kevin Industries employee portal class creation
+    def __init__(self, first_name, last_name): # constructor and self being the object for the employee in the class
+        self.first_name = first_name.strip().title() # strip removes extra spaces added
+        self.last_name = last_name.strip().title() # title helps with formatting 
+
+
+        self.username = f"{self.first_name[0]}_{self.last_name[:3]}" # first letter is 0 and last name is first 3 digits. the _ is a placeholder
+
+
+        self.password = self.passwords_generation() # CALLS the password
+
+
+        self.time_worked = {
+        "Sunday": 0,
+        "Monday": 0,
+        "Tuesday": 0,
+        "Wednesday": 0,
+        "Thursday": 0,
+        "Friday": 0,
+        "Saturday": 0,
+        }
+
+        self.hourly_rate = 12.00
+        # I am not sure if this was the way instructed to write out the days of the week. I guess next time I can use mod 7 or something
+    def passwords_generation(self): # password generation function
+
+        length = random.randint(8, 16) # requirement for password set
+        password = [
+            random.choice(string.ascii_uppercase),
+            random.choice(string.ascii_lowercase),
+            random.choice(string.digits)
+        ]
+        # the random.choice operators to determine and randomize the password
+        all_chars = string.ascii_letters + string.digits # creates a pool of allowed characters
+        
+        password += random.choices(all_chars, k=length - 3) #fills the rest of password
+        random.shuffle(password)
+        # password is shuffled
+        return ''.join(password)
+        # converts back to string with an empty string
+
+    def is_valid_password(self, pwd): # function for valid password
+        if not (8 <= len(pwd) <= 16): # if not operator if password is not valid within the parameters
+            return False # restarts loop
+            # parameters set below
+        has_upper = any(c.isupper() for c in pwd)
+        has_lower = any(c.islower() for c in pwd)
+        has_digit = any(c.isdigit() for c in pwd)
+        return has_upper and has_lower and has_digit # ends loop once all parameters are fulfilled
+        
+
+    def update_name(self): # function to update name
+        print("Update your name") 
+        print("-" * 30) # divider
+        current_pwd = input("Please enter your current password: ") # user inputs new name
+        # if operator name is incorrect 
+        if current_pwd != self.password: # current password is not equal to new password
+            print("Incorrect password. Access Denied!") # access denied!
+            return
+
+        new_first = input("Enter your new first name: ").strip().title() # new first name
+        new_last = input("Enter your new last name: ").strip().title() # new last name
+
+
+        if not new_first or not new_last: # if invalid characters are added to the name
+            print("Please enter a valid entry. Must have a character.")
+            return
+
+        # new first name and their variables listed below
+        self.first_name = new_first
+        self.last_name = new_last
+        self.username = f"{self.first_name[0]}_{self.last_name[:3]}"
+
+        # new dictionary updated with first name
+        new_data = { 
+         "Fields": ["First Name: ", "Last Name: ", "Username: ", "Password: "],
+        "User Details": [self.first_name, self.last_name, self.username, self.password]
+        }
+        # display!
+        df = pd.DataFrame(new_data)
+        display(df)
+        print(f"Name Updated Successfully!")
+
+# update password function below
+    def update_password(self):
+        print("Update your password")
+        print("=" * 30)
+
+        # current password has to inputted for change. See below
+        current_pwd = input("Please enter your current password: ")
+        if current_pwd != self.password: # challenge for password
+            print("That is not the correct password")
+            return
+
+        new_pwd = input("Enter your new password: ") # new pw input
+
+        if new_pwd == self.password: # if new password matches old one then error occurs
+            print("New password cannot be the same as the old")
+            return # loop continues
+
+        # if operator to enssure password is valid
+        if not self.is_valid_password(new_pwd):
+            print("Password must be 8-16 characters contain at least: ")
+            print(" • 1 uppercase letter")
+            print(" • 1 lowercase letter")
+            print(" • 1 number")
+            return # returns value to function
+
+
+        self.password = new_pwd # new passworrrd is crrreated and displayed
+        print(f"{self.first_name}, your name password has been updated")
+        print(f"Username: {self.username}")
+        print(f"New Password: {self.password}")    
+
+
+        
+
+    def add_hours(self): # new function to match with main below
+        print("\nAdd Your Work Hours - Enter one day at a time")
+        print("Type 'done' when finished\n")
+
+        # valid_days list since a dictionary was giving me issues
+        valid_days = ["Sunday", "Monday", "Tuesday", "Wednesday", 
+                "Thursday", "Friday", "Saturday"] 
+
+        # for this portion I thought the user can have more flexibitlity and add their own days worked and hours for a complete user oriented system
+    
+        while True: # had to use break and continue again because ask_for_hours was causing issues
+            day = input("Day (or type the word 'done'): ").strip().title() # strip for spaces and title for case
+
+            # below I added two if operators to determine the done variable when the user is done inputting hours and the day not valid
+            if day == "Done".title(): 
+                break
+            # if day inputted by user is incorrect
+            if day not in valid_days:
+                print("Invalid day. Try: Monday, Tuesday, etc.")
+                continue
+            # try operator with except to check if minutes are entered properly
+            try: 
+                mins = int(input(f"Minutes worked on {day}: "))
+                if mins < 0:
+                    print("Minutes cannot be negative.")
+                    continue
+                
+                self.time_worked[day] = mins
+                print(f"{day}: {mins} minutes recorded")
+
+            # User could work more than 40 hours BUT NO OVERTIME is going to be paid!
+            except ValueError:
+                print("Please enter a number. 8 Hours = 480 minutes")
+
+            # end output for the function add_hours
+
+        print(f"\nCongratulation! {self.first_name}, your timecard was updated successfully!")
+        
+
+    # paystub function to print out paystub when user is ready
+    def paystub(self):
+        # calculations for total minutes and converting to hours
+        total_mins = sum(self.time_worked.values())
+        total_hours = total_mins / 60
+        pay = total_hours * 12
+
+        # print outputs for user paystub which includes the name, username, and hours worked
+        print(f"{self.last_name}, {self.first_name}")
+        print(f"Username: {self.username}\n")
+        print("=" * 30)
+        print("Hours worked this week")
+        print("=" * 30)
+
+        # for loop for day and calling back the time worked inputs from the def add_hours function
+        for day, mins in self.time_worked.items():
+            # if minutes is zero, me the owner of Kevin Industries is going to be upset
+            if mins == 0:
+                # no hours????
+                print(f"{day:<9}: NO HOURS????")
+            # else operator after doing some arithmetic
+            else:
+                h = mins // 60 # condensed hours to h and minutes to m
+                m = mins % 60 # modulus 60 for remaining minutes
+                print(f"{day:<9}: {h} hr {m} min") #align everything neatly kinda
+
+
+        # final output for the calculations when it comes to users total hours and gross pay
+        # used the .2f to keep it simple and within 2 decimals
+        print("-" * 30) # divider
+        print(f"TOTAL HOURS: {total_hours:.2f}")
+        print(f"GROSS PAY: ${pay:.2f}")
+        print("-" * 30) # divider
+
+
+        self.time_worked = {day: 0 for day in self.time_worked} # self.time_worked call back
+        print("Timecard reset for the week") # time reset for the week and final output for this function
+            
+        
+    
+    
+    def display(self): # function to show all of the employees information
+        print(f"Welcome {self.first_name}! Your KI account has been created!\n") # Welcome message with first name
+    
+        data = {
+        "Fields": ["First Name: ", "Last Name: ", "Username: ", "Password: "],
+        "User Details": [self.first_name, self.last_name, self.username, self.password]
+        }
+        df = pd.DataFrame(data) # creates pandas DataFrame table with two columns
+        print("Your login Credentials: ")
+        display(df) # display
+    
+        print("\n" + "=" * 50) #dividers
+        print("Timecard Ready (All Days Start at 0 Hours)")
+        print("=" * 50) #dividers
+        time_df = pd.DataFrame([self.time_worked]).T #the T transposes and brings in the time_worked dictionary
+        time_df.columns = ["Hours Worked"] # columns for dataframe
+        time_df.index.name = "Day" 
+        display(time_df) #displays in a table
+
+
+        
+
+print("Kevin Industries (KI) Employee Portal\u2122 - New Account Creation") # main
+
+print("=" * 50) # divider
+
+# Below is the user input
+first = input("\nPlease enter your first name: ") 
+last = input("Please enter your last name: ")
+
+new_employee = KI_Employee_Portal(first, last) # employee login with CLASS
+
+new_employee.display() # table display
+
+print("\nAccount creation complete. Welcome to Kevin Industries\u2122") # Finale - SIKE! 
+
+ask_for_input = True #ask_for_input loop
+while ask_for_input: #paired with while loop
+    print("=" * 50) # divider
+    print("Please select an option: ") # Selection option
+    print("1. Update your name - Please keep in mind your username will be updated as well")
+    print("2. Update Password")
+    print("3. Add minutes(hours) to system")
+    print("4. Print Paystub")
+    print("5. Exit")
+    choice = input("Enter a choice (1 - 5): ").strip() # choice variable given user input choice
+
+# if operators to conduct choices 1 through 3
+    if choice == "1": # choice 1 to update name and calls back to update_name function
+        new_employee.update_name()
+        
+    elif choice == "2": # choice 2 to update name and calls back to update_password function
+        new_employee.update_password()
+
+    elif choice == "3": 
+        new_employee.add_hours()
+
+    elif choice == "4": 
+        new_employee.paystub()
+        
+    elif choice == "5": # EXIT
+        print("Thank you for using KI Employee Portal\u2122.")
+        ask_for_input = False # Ends iteration
+        
+    else:
+        print("Invalid option. Please enter an option from 1 to 5") # error if anything other than 1 to 3 are chosen
